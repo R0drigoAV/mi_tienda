@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Cloudinary widget -->
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">Panel Administrador</h1>
+
+    <!-- Botón para subir -->
+    <button id="upload_widget"
+      class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+      Subir Imagen
+    </button>
+
+    <!-- Vista previa -->
+    <div id="preview" class="mt-6 text-center hidden">
+      <img id="preview-img" src="" alt="Vista previa" class="w-48 h-48 object-cover mx-auto rounded-lg shadow-md">
+      <p class="mt-2 text-gray-600 text-sm break-all" id="preview-url"></p>
+    </div>
+
+    <!-- Guardar producto -->
+    <button id="save_product"
+      class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg">
+      Guardar Producto
+    </button>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+
