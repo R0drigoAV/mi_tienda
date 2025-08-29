@@ -5,31 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Administrador</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Cloudinary widget -->
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+  <style>
+    .preview-container {
+      transition: all 0.3s ease;
+    }
+    .preview-media {
+      max-height: 200px;
+      object-fit: contain;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl">
     <h1 class="text-2xl font-bold mb-6 text-center">Panel Administrador</h1>
 
-    <!-- Botón para subir -->
-    <button id="upload_widget"
-      class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-      Subir Imagen
-    </button>
+    <!-- Formulario de producto -->
+    <form id="product-form" class="space-y-4 mb-6">
+      <!-- Nombre del Producto -->
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="product-name">
+          Nombre del Producto *
+        </label>
+        <input type="text" id="product-name" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Ej: Laptop Gamer">
+      </div>
 
-    <!-- Vista previa -->
-    <div id="preview" class="mt-6 text-center hidden">
-      <img id="preview-img" src="" alt="Vista previa" class="w-48 h-48 object-cover mx-auto rounded-lg shadow-md">
-      <p class="mt-2 text-gray-600 text-sm break-all" id="preview-url"></p>
+      <!-- Descripción -->
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="product-description">
+          Descripción *
+        </label>
+        <textarea id="product-description" required rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Describe las características del producto..."></textarea>
+      </div>
+
+      <!-- Precio y Cantidad -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-price">
+            Precio (S/) *
+          </label>
+          <input type="number" id="product-price" required step="0.01" min="0"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="0.00">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-quantity">
+            Cantidad *
+          </label>
+          <input type="number" id="product-quantity" required min="1"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="0">
+        </div>
+      </div>
+
+      <!-- Botones para subir medios -->
+      <div class="grid grid-cols-2 gap-4">
+        <button type="button" id="upload_image"
+          class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+          📸 Subir Imagen
+        </button>
+        <button type="button" id="upload_video"
+          class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+          🎥 Subir Video
+        </button>
+      </div>
+    </form>
+
+    <!-- Vista previa de medios -->
+    <div id="preview" class="hidden mb-6">
+      <h3 class="font-medium text-gray-700 mb-2">Vista Previa:</h3>
+      <div id="preview-media" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+        <!-- Aquí se mostrará la imagen o video -->
+      </div>
+      <p class="mt-2 text-gray-600 text-sm break-all text-center" id="preview-url"></p>
     </div>
 
     <!-- Guardar producto -->
-    <button id="save_product"
-      class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg">
-      Guardar Producto
+    <button type="submit" form="product-form"
+      class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg">
+      💾 Guardar Producto
     </button>
+
+    <!-- Lista de productos guardados -->
+    <div id="products-list" class="mt-8 hidden">
+      <h3 class="font-bold text-gray-700 mb-4">Productos Guardados</h3>
+      <div id="products-container" class="space-y-3">
+        <!-- Los productos se mostrarán aquí -->
+      </div>
+    </div>
   </div>
 
   <script src="admin.js"></script>
