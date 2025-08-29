@@ -314,9 +314,6 @@
                 const createdDate = new Date(product.createdAt);
                 document.getElementById('created-date').textContent = createdDate.toLocaleDateString();
                 
-                // URL de Cloudinary
-                document.getElementById('media-url').textContent = product.media;
-                
                 // Mostrar imagen o video
                 const mediaContainer = document.querySelector('.media-container');
                 if (product.mediaType === 'video') {
