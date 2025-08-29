@@ -207,32 +207,28 @@ function loadProductsList() {
     });
 }
 
-// Funciones para cambiar pestañas
+// Funciones para cambiar pestañas - VERSIÓN SIMPLIFICADA
 function switchTab(tabName) {
     console.log("🔄 Cambiando a pestaña:", tabName);
     
-    // Desactivar todas las pestañas
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    // Ocultar todos los contenidos
+    document.getElementById('content-add').classList.remove('active');
+    document.getElementById('content-manage').classList.remove('active');
     
-    // Activar la pestaña seleccionada
-    const contentElement = document.getElementById(`content-${tabName}`);
-    const tabElement = document.getElementById(`tab-${tabName}`);
+    // Desactivar todos los botones
+    document.getElementById('tab-add').classList.remove('active');
+    document.getElementById('tab-manage').classList.remove('active');
     
-    if (contentElement && tabElement) {
-        contentElement.classList.add('active');
-        tabElement.classList.add('active');
-        
-        // Si es la pestaña de gestión, cargar productos
-        if (tabName === 'manage') {
-            loadProductsList();
-        }
+    // Mostrar el contenido seleccionado
+    document.getElementById(`content-${tabName}`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    // Si es la pestaña de gestión, cargar productos
+    if (tabName === 'manage') {
+        loadProductsList();
     }
 }
+
 
 // Función para abrir modal de edición COMPLETO
 function openEditModal(index) {
@@ -471,40 +467,46 @@ function deleteAllProducts() {
     }
 }
 
-// Cuando el documento esté listo
+// Cuando el documento esté listo - VERSIÓN CORREGIDA
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("🚀 Panel Admin mejorado cargado");
+    console.log("🚀 Panel Admin cargado");
     
     // Inicializar Cloudinary
     if (typeof cloudinary !== 'undefined') {
         initCloudinary();
-    } else {
-        console.error("❌ Cloudinary no está cargado");
-        alert("Error: Cloudinary no se cargó correctamente. Recarga la página.");
     }
     
-    // Event listeners
-    document.getElementById('upload_image').addEventListener('click', () => {
+    // Configurar event listeners de forma DIRECTA
+    document.getElementById('upload_image').onclick = function() {
         if (myImageWidget) myImageWidget.open();
-    });
+    };
     
-    document.getElementById('upload_video').addEventListener('click', () => {
+    document.getElementById('upload_video').onclick = function() {
         if (myVideoWidget) myVideoWidget.open();
-    });
+    };
     
-    document.getElementById('product-form').addEventListener('submit', saveProduct);
-    document.getElementById('edit-product-form').addEventListener('submit', saveProductEdit);
+    document.getElementById('product-form').onsubmit = saveProduct;
+    document.getElementById('edit-product-form').onsubmit = saveProductEdit;
+    
+    // ✅ CONFIGURACIÓN DIRECTA DE PESTAÑAS
+    document.getElementById('tab-add').onclick = function() { 
+        switchTab('add'); 
+    };
+    
+    document.getElementById('tab-manage').onclick = function() { 
+        switchTab('manage'); 
+    };
     
     // Cerrar modales al hacer clic fuera
-    document.getElementById('edit-modal').addEventListener('click', function(e) {
+    document.getElementById('edit-modal').onclick = function(e) {
         if (e.target === this) closeEditModal();
-    });
+    };
     
-    document.getElementById('confirm-modal').addEventListener('click', function(e) {
+    document.getElementById('confirm-modal').onclick = function(e) {
         if (e.target === this) closeConfirmModal();
-    });
+    };
     
-    console.log("✅ Event listeners configurados correctamente");
+    console.log("✅ Todos los event listeners configurados");
 });
 
 // Hacer funciones globales
