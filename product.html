@@ -51,43 +51,109 @@
             background: #4a5568;
         }
         
-        .product-content {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        
-        .image-section {
-            flex: 1;
-            min-width: 300px;
-            background: #f8f9fa;
+        .gallery-section {
+            position: relative;
+            background: #1a202c;
+            min-height: 500px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-        }
-        
-        .media-container {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .media-container img,
-        .media-container video {
+        .gallery-main {
             width: 100%;
-            height: auto;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .main-media {
+            max-width: 90%;
             max-height: 500px;
             object-fit: contain;
+            border-radius: 10px;
+        }
+        
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            color: #2d3748;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .gallery-thumbnails {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            overflow-x: auto;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .thumbnail:hover {
+            transform: scale(1.1);
+            border-color: #3B82F6;
+        }
+        
+        .thumbnail.active {
+            border-color: #3B82F6;
+            transform: scale(1.1);
+        }
+        
+        .video-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 5;
         }
         
         .info-section {
-            flex: 1;
-            min-width: 300px;
             padding: 40px;
             background: white;
         }
@@ -184,22 +250,25 @@
             flex: 1;
         }
         
-        .cloudinary-url {
-            background: #f1f8ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 12px;
-            word-break: break-all;
-        }
-        
         @media (max-width: 768px) {
-            .product-content {
-                flex-direction: column;
+            .gallery-section {
+                min-height: 400px;
             }
             
-            .image-section, .info-section {
-                width: 100%;
+            .main-media {
+                max-width: 95%;
+                max-height: 400px;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .thumbnail {
+                width: 60px;
+                height: 60px;
             }
             
             .navigation {
@@ -229,49 +298,76 @@
             </div>
         </div>
         
-        <!-- Contenido del producto -->
-        <div class="product-content">
-            <div class="image-section">
-                <div class="media-container">
-                    <div class="image-placeholder">
-                        <i class="fas fa-image" style="font-size: 64px; color: #6c757d;"></i>
-                        <p>Cargando imagen...</p>
-                    </div>
+        <!-- Galería de Medios -->
+        <div class="gallery-section">
+            <div class="gallery-main" id="gallery-main">
+                <div class="text-center text-white">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Cargando galería...</p>
                 </div>
             </div>
             
-            <div class="info-section">
-                <span class="stock" id="stock-badge"><i class="fas fa-check-circle"></i> Cargando...</span>
-                <h1 id="product-name">Cargando...</h1>
-                
-                <div class="description">
-                    <p id="product-description">Cargando descripción...</p>
+            <div class="gallery-nav">
+                <button class="nav-btn" id="prev-btn" onclick="changeMedia(-1)" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="nav-btn" id="next-btn" onclick="changeMedia(1)" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="video-indicator" id="video-indicator" style="display: none;">
+                <i class="fas fa-video"></i> Video
+            </div>
+        </div>
+        
+        <!-- Miniaturas -->
+        <div class="gallery-thumbnails" id="gallery-thumbnails">
+            <!-- Las miniaturas se cargarán aquí -->
+        </div>
+        
+        <!-- Información del Producto -->
+        <div class="info-section">
+            <span class="stock" id="stock-badge"><i class="fas fa-check-circle"></i> Cargando...</span>
+            <h1 id="product-name">Cargando...</h1>
+            
+            <div class="description">
+                <p id="product-description">Cargando descripción...</p>
+            </div>
+            
+            <div class="price" id="product-price">S/ 0.00</div>
+            
+            <div class="action-buttons">
+                <button class="btn buy-btn"><i class="fas fa-shopping-bag"></i> Comprar ahora</button>
+                <button class="btn cart-btn"><i class="fas fa-shopping-cart"></i> Añadir al carrito</button>
+            </div>
+            
+            <div class="product-details">
+                <div class="detail-item">
+                    <div class="detail-title">Disponibilidad:</div>
+                    <div class="detail-value" id="availability">Cargando...</div>
                 </div>
-                
-                <div class="price" id="product-price">S/ 0.00</div>
-                
-                <div class="action-buttons">
-                    <button class="btn buy-btn"><i class="fas fa-shopping-bag"></i> Comprar ahora</button>
-                    <button class="btn cart-btn"><i class="fas fa-shopping-cart"></i> Añadir al carrito</button>
+                <div class="detail-item">
+                    <div class="detail-title">Unidades:</div>
+                    <div class="detail-value" id="quantity">Cargando...</div>
                 </div>
-                
-                <div class="product-details">
-                    <div class="detail-item">
-                        <div class="detail-title">Disponibilidad:</div>
-                        <div class="detail-value" id="availability">Cargando...</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-title">Unidades:</div>
-                        <div class="detail-value" id="quantity">Cargando...</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-title">Agregado:</div>
-                        <div class="detail-value" id="created-date">Cargando...</div>
-                    </div>
+                <div class="detail-item">
+                    <div class="detail-title">Medios:</div>
+                    <div class="detail-value" id="media-count">Cargando...</div>
                 </div>
-                
+                <div class="detail-item">
+                    <div class="detail-title">Agregado:</div>
+                    <div class="detail-value" id="created-date">Cargando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        let currentProduct = null;
+        let currentMediaIndex = 0;
+        let mediaElements = [];
+
         // Cargar detalles del producto
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -279,62 +375,172 @@
             const products = JSON.parse(localStorage.getItem("products")) || [];
             
             if (productIndex !== null && products[productIndex]) {
-                const product = products[productIndex];
-                
-                // Actualizar la UI con los datos del producto
-                document.getElementById('product-name').textContent = product.name;
-                document.getElementById('product-description').textContent = product.description;
-                document.getElementById('product-price').textContent = `S/ ${product.price.toFixed(2)}`;
-                
-                // Actualizar disponibilidad
-                const stockElement = document.getElementById('stock-badge');
-                const availabilityElement = document.getElementById('availability');
-                const quantityElement = document.getElementById('quantity');
-                
-                if (product.quantity > 0) {
-                    stockElement.innerHTML = `<i class="fas fa-check-circle"></i> En stock: ${product.quantity} unidades`;
-                    stockElement.classList.remove('out-of-stock');
-                    availabilityElement.textContent = 'Disponible';
-                } else {
-                    stockElement.innerHTML = '<i class="fas fa-times-circle"></i> Agotado';
-                    stockElement.classList.add('out-of-stock');
-                    availabilityElement.textContent = 'Agotado';
-                }
-                
-                quantityElement.textContent = product.quantity;
-                
-                // Fecha de creación
-                const createdDate = new Date(product.createdAt);
-                document.getElementById('created-date').textContent = createdDate.toLocaleDateString();
-                
-                // Mostrar imagen o video
-                const mediaContainer = document.querySelector('.media-container');
-                if (product.mediaType === 'video') {
-                    mediaContainer.innerHTML = `
-                        <video controls class="w-full h-auto">
-                            <source src="${product.media}" type="video/mp4">
-                            Tu navegador no soporta el elemento de video.
-                        </video>
-                    `;
-                } else {
-                    mediaContainer.innerHTML = `
-                        <img src="${product.media}" alt="${product.name}" class="w-full h-auto">
-                    `;
-                }
+                currentProduct = products[productIndex];
+                loadProductData(currentProduct);
+                loadGallery(currentProduct);
             } else {
-                // Producto no encontrado
-                document.querySelector('.product-content').innerHTML = `
-                    <div class="flex items-center justify-center" style="width: 100%; padding: 60px 20px;">
-                        <div class="text-center">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #e74c3c; margin-bottom: 20px;"></i>
-                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Producto no encontrado</h2>
-                            <p class="text-gray-600 mb-6">El producto que buscas no existe o ha sido eliminado.</p>
-                            <a href="index.html" class="btn buy-btn">
-                                <i class="fas fa-arrow-left"></i> Volver a la tienda
-                            </a>
-                        </div>
+                showError();
+            }
+        });
+
+        function loadProductData(product) {
+            document.getElementById('product-name').textContent = product.name;
+            document.getElementById('product-description').textContent = product.description;
+            document.getElementById('product-price').textContent = `S/ ${product.price.toFixed(2)}`;
+            
+            // Actualizar disponibilidad
+            const stockElement = document.getElementById('stock-badge');
+            const availabilityElement = document.getElementById('availability');
+            const quantityElement = document.getElementById('quantity');
+            const mediaCountElement = document.getElementById('media-count');
+            
+            if (product.quantity > 0) {
+                stockElement.innerHTML = `<i class="fas fa-check-circle"></i> En stock: ${product.quantity} unidades`;
+                stockElement.classList.remove('out-of-stock');
+                availabilityElement.textContent = 'Disponible';
+            } else {
+                stockElement.innerHTML = '<i class="fas fa-times-circle"></i> Agotado';
+                stockElement.classList.add('out-of-stock');
+                availabilityElement.textContent = 'Agotado';
+            }
+            
+            quantityElement.textContent = product.quantity;
+            mediaCountElement.textContent = product.gallery ? product.gallery.length : 0;
+            
+            // Fecha de creación
+            const createdDate = new Date(product.createdAt);
+            document.getElementById('created-date').textContent = createdDate.toLocaleDateString();
+        }
+
+        function loadGallery(product) {
+            if (!product.gallery || product.gallery.length === 0) {
+                document.getElementById('gallery-main').innerHTML = `
+                    <div class="text-center text-white">
+                        <i class="fas fa-image fa-3x"></i>
+                        <p class="mt-2">No hay medios disponibles</p>
                     </div>
                 `;
+                return;
+            }
+
+            mediaElements = product.gallery;
+            currentMediaIndex = 0;
+            
+            // Cargar miniaturas
+            loadThumbnails();
+            
+            // Mostrar primer medio
+            showCurrentMedia();
+            
+            // Habilitar botones de navegación si hay más de un medio
+            if (mediaElements.length > 1) {
+                document.getElementById('prev-btn').disabled = false;
+                document.getElementById('next-btn').disabled = false;
+            }
+        }
+
+        function loadThumbnails() {
+            const thumbnailsContainer = document.getElementById('gallery-thumbnails');
+            thumbnailsContainer.innerHTML = '';
+            
+            mediaElements.forEach((media, index) => {
+                const thumbnail = document.createElement('img');
+                thumbnail.className = 'thumbnail';
+                thumbnail.src = media.type === 'video' ? 
+                    getVideoThumbnail(media.url) : 
+                    media.url;
+                thumbnail.alt = `Miniatura ${index + 1}`;
+                thumbnail.onclick = () => {
+                    currentMediaIndex = index;
+                    showCurrentMedia();
+                    updateThumbnailSelection();
+                };
+                
+                thumbnailsContainer.appendChild(thumbnail);
+            });
+            
+            updateThumbnailSelection();
+        }
+
+        function getVideoThumbnail(videoUrl) {
+            const videoId = videoUrl.split('/').pop().split('.')[0];
+            return `https://res.cloudinary.com/dgio6hkz8/video/upload/w_100,h_100,c_fill/${videoId}.jpg`;
+        }
+
+        function showCurrentMedia() {
+            const galleryMain = document.getElementById('gallery-main');
+            const media = mediaElements[currentMediaIndex];
+            const videoIndicator = document.getElementById('video-indicator');
+            
+            if (media.type === 'video') {
+                galleryMain.innerHTML = `
+                    <video controls class="main-media" autoplay>
+                        <source src="${media.url}" type="video/mp4">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                `;
+                videoIndicator.style.display = 'block';
+            } else {
+                galleryMain.innerHTML = `<img src="${media.url}" alt="${currentProduct.name}" class="main-media">`;
+                videoIndicator.style.display = 'none';
+            }
+            
+            updateThumbnailSelection();
+            updateNavButtons();
+        }
+
+        function changeMedia(direction) {
+            currentMediaIndex += direction;
+            
+            // Navegación circular
+            if (currentMediaIndex < 0) {
+                currentMediaIndex = mediaElements.length - 1;
+            } else if (currentMediaIndex >= mediaElements.length) {
+                currentMediaIndex = 0;
+            }
+            
+            showCurrentMedia();
+        }
+
+        function updateThumbnailSelection() {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                if (index === currentMediaIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev-btn').disabled = mediaElements.length <= 1;
+            document.getElementById('next-btn').disabled = mediaElements.length <= 1;
+        }
+
+        function showError() {
+            document.querySelector('.product-container').innerHTML = `
+                <div class="flex items-center justify-center" style="width: 100%; padding: 60px 20px;">
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #e74c3c; margin-bottom: 20px;"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Producto no encontrado</h2>
+                        <p class="text-gray-600 mb-6">El producto que buscas no existe o ha sido eliminado.</p>
+                        <a href="index.html" class="btn buy-btn">
+                            <i class="fas fa-arrow-left"></i> Volver a la tienda
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Event listeners para teclado
+        document.addEventListener('keydown', (e) => {
+            if (mediaElements.length > 1) {
+                if (e.key === 'ArrowLeft') {
+                    changeMedia(-1);
+                } else if (e.key === 'ArrowRight') {
+                    changeMedia(1);
+                }
             }
         });
     </script>
