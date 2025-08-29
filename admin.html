@@ -99,67 +99,68 @@
     </div>
   </div>
 
-  <script src="admin.js"></script>
-</body>
-<!-- Modal para Editar Producto -->
-<div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4">
-    <h2 class="text-xl font-bold mb-4">Editar Producto</h2>
-    
-    <form id="edit-product-form">
-      <input type="hidden" id="edit-index">
+  <!-- Modal para Editar Producto -->
+  <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4">
+      <h2 class="text-xl font-bold mb-4">Editar Producto</h2>
       
-      <div class="space-y-4">
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2">Nombre del Producto *</label>
-          <input type="text" id="edit-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-        </div>
+      <form id="edit-product-form">
+        <input type="hidden" id="edit-index">
         
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2">Descripción *</label>
-          <textarea id="edit-description" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-4">
           <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2">Precio (S/) *</label>
-            <input type="number" id="edit-price" required step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nombre del Producto *</label>
+            <input type="text" id="edit-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
           </div>
+          
           <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2">Cantidad *</label>
-            <input type="number" id="edit-quantity" required min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Descripción *</label>
+            <textarea id="edit-description" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
           </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2">Precio (S/) *</label>
+              <input type="number" id="edit-price" required step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2">Cantidad *</label>
+              <input type="number" id="edit-quantity" required min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+          </div>
+          
+          <div id="edit-media-preview" class="text-center"></div>
         </div>
-        
-        <div id="edit-media-preview" class="text-center"></div>
-      </div>
 
-      <div class="flex gap-3 mt-6">
-        <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
-          Cancelar
-        </button>
-        <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-          Guardar Cambios
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal de Confirmación -->
-<div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4">
-    <h2 class="text-xl font-bold mb-4">Confirmar Eliminación</h2>
-    <p class="text-gray-600 mb-6">¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.</p>
-    
-    <div class="flex gap-3">
-      <button onclick="closeConfirmModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
-        Cancelar
-      </button>
-      <button onclick="confirmDelete()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg">
-        Sí, Eliminar
-      </button>
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
+
+  <!-- Modal de Confirmación -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4">
+      <h2 class="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+      <p class="text-gray-600 mb-6">¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.</p>
+      
+      <div class="flex gap-3">
+        <button onclick="closeConfirmModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+          Cancelar
+        </button>
+        <button onclick="confirmDelete()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg">
+          Sí, Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
 </html>
