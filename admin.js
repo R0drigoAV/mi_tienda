@@ -4,6 +4,12 @@ let currentMediaUrl = '';
 let currentMediaType = '';
 let productToDeleteIndex = null;
 
+// Variables para edición
+window.newEditMedia = null;
+window.newEditMediaType = null;
+window.currentEditIndex = null;
+window.uploadingForEdit = false;
+
 // Configurar widgets de Cloudinary
 function initCloudinary() {
     console.log("🔄 Inicializando Cloudinary...");
@@ -51,9 +57,19 @@ function handleUploadResult(error, result) {
     
     if (result && result.event === "success") {
         console.log("✅ Medio subido:", result.info);
-        currentMediaUrl = result.info.secure_url;
-        currentMediaType = result.info.resource_type;
-        showPreview(result.info);
+        
+        if (window.uploadingForEdit) {
+            // Es para edición
+            window.newEditMedia = result.info.secure_url;
+            window.newEditMediaType = result.info.resource_type;
+            showEditPreview(result.info);
+            window.uploadingForEdit = false;
+        } else {
+            // Es para nuevo producto
+            currentMediaUrl = result.info.secure_url;
+            currentMediaType = result.info.resource_type;
+            showPreview(result.info);
+        }
     }
 }
 
@@ -193,27 +209,6 @@ function loadProductsList() {
 
 // Funciones para cambiar pestañas
 function switchTab(tabName) {
-    // Desactivar todas las pestañas
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Activar la pestaña seleccionada
-    document.getElementById(`content-${tabName}`).classList.add('active');
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    
-    // Si es la pestaña de gestión, cargar productos
-    if (tabName === 'manage') {
-        loadProductsList();
-    }
-}
-// ... (el código anterior se mantiene igual hasta las funciones de modales)
-
-// Funciones para cambiar pestañas
-function switchTab(tabName) {
     console.log("🔄 Cambiando a pestaña:", tabName);
     
     // Desactivar todas las pestañas
@@ -236,12 +231,245 @@ function switchTab(tabName) {
         if (tabName === 'manage') {
             loadProductsList();
         }
-    } else {
-        console.error("❌ No se encontraron elementos de la pestaña:", tabName);
     }
 }
 
+// Función para abrir modal de edición COMPLETO
+function openEditModal(index) {
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    const product = products[index];
+    
+    if (!product) return;
+    
+    // Guardar el índice del producto a editar
+    window.currentEditIndex = index;
+    
+    // Llenar el formulario con los datos del producto
+    document.getElementById('edit-index').value = index;
+    document.getElementById('edit-name').value = product.name;
+    document.getElementById('edit-description').value = product.description;
+    document.getElementById('edit-price').value = product.price;
+    document.getElementById('edit-quantity').value = product.quantity;
+    
+    // Mostrar vista previa del media actual
+    const mediaPreview = document.getElementById('edit-media-preview');
+    if (product.mediaType === 'video') {
+        mediaPreview.innerHTML = `
+            <div class="mb-4">
+                <h4 class="font-medium mb-2">Video Actual:</h4>
+                <video controls class="w-full max-h-48 rounded-lg mx-auto">
+                    <source src="${product.media}" type="video/mp4">
+                </video>
+            </div>
+            <button type="button" onclick="openVideoUpload()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+                🎥 Cambiar Video
+            </button>
+        `;
+    } else {
+        mediaPreview.innerHTML = `
+            <div class="mb-4">
+                <h4 class="font-medium mb-2">Imagen Actual:</h4>
+                <img src="${product.media}" alt="Imagen actual" class="w-48 h-48 object-contain mx-auto rounded-lg">
+            </div>
+            <button type="button" onclick="openImageUpload()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+                📸 Cambiar Imagen
+            </button>
+        `;
+    }
+    
+    // Mostrar modal
+    document.getElementById('edit-modal').classList.remove('hidden');
+    
+    // Resetear nueva media
+    window.newEditMedia = null;
+    window.newEditMediaType = null;
+}
 
+// Función para abrir upload de imagen en edición
+function openImageUpload() {
+    if (myImageWidget) {
+        myImageWidget.open();
+        // Configurar para que sepa que es para edición
+        window.uploadingForEdit = true;
+    }
+}
+
+// Función para abrir upload de video en edición
+function openVideoUpload() {
+    if (myVideoWidget) {
+        myVideoWidget.open();
+        // Configurar para que sepa que es para edición
+        window.uploadingForEdit = true;
+    }
+}
+
+// Mostrar vista previa en edición
+function showEditPreview(fileInfo) {
+    const mediaPreview = document.getElementById('edit-media-preview');
+    
+    if (fileInfo.resource_type === 'image') {
+        mediaPreview.innerHTML = `
+            <div class="mb-4">
+                <h4 class="font-medium mb-2">Nueva Imagen:</h4>
+                <img src="${fileInfo.secure_url}" alt="Nueva imagen" 
+                     class="w-48 h-48 object-contain mx-auto rounded-lg">
+                <p class="text-sm text-green-600 mt-2">¡Nueva imagen seleccionada!</p>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" onclick="openImageUpload()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    📸 Cambiar
+                </button>
+                <button type="button" onclick="keepOriginalMedia()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    ↩️ Mantener Original
+                </button>
+            </div>
+        `;
+    } else if (fileInfo.resource_type === 'video') {
+        mediaPreview.innerHTML = `
+            <div class="mb-4">
+                <h4 class="font-medium mb-2">Nuevo Video:</h4>
+                <video controls class="w-full max-h-48 rounded-lg mx-auto">
+                    <source src="${fileInfo.secure_url}" type="video/mp4">
+                </video>
+                <p class="text-sm text-green-600 mt-2">¡Nuevo video seleccionado!</p>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" onclick="openVideoUpload()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    🎥 Cambiar
+                </button>
+                <button type="button" onclick="keepOriginalMedia()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    ↩️ Mantener Original
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Función para mantener la media original
+function keepOriginalMedia() {
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    const index = window.currentEditIndex;
+    const product = products[index];
+    
+    if (product) {
+        window.newEditMedia = null;
+        window.newEditMediaType = null;
+        
+        const mediaPreview = document.getElementById('edit-media-preview');
+        if (product.mediaType === 'video') {
+            mediaPreview.innerHTML = `
+                <div class="mb-4">
+                    <h4 class="font-medium mb-2">Video Actual:</h4>
+                    <video controls class="w-full max-h-48 rounded-lg mx-auto">
+                        <source src="${product.media}" type="video/mp4">
+                    </video>
+                    <p class="text-sm text-gray-600 mt-2">Manteniendo video original</p>
+                </div>
+                <button type="button" onclick="openVideoUpload()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    🎥 Cambiar Video
+                </button>
+            `;
+        } else {
+            mediaPreview.innerHTML = `
+                <div class="mb-4">
+                    <h4 class="font-medium mb-2">Imagen Actual:</h4>
+                    <img src="${product.media}" alt="Imagen actual" class="w-48 h-48 object-contain mx-auto rounded-lg">
+                    <p class="text-sm text-gray-600 mt-2">Manteniendo imagen original</p>
+                </div>
+                <button type="button" onclick="openImageUpload()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+                    📸 Cambiar Imagen
+                </button>
+            `;
+        }
+    }
+}
+
+// Función para guardar cambios de edición
+function saveProductEdit(event) {
+    event.preventDefault();
+    
+    const index = document.getElementById('edit-index').value;
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    
+    if (index >= 0 && index < products.length) {
+        // Determinar qué media usar
+        let finalMedia = products[index].media;
+        let finalMediaType = products[index].mediaType;
+        
+        if (window.newEditMedia) {
+            finalMedia = window.newEditMedia;
+            finalMediaType = window.newEditMediaType;
+        }
+        
+        // Actualizar producto
+        products[index] = {
+            name: document.getElementById('edit-name').value,
+            description: document.getElementById('edit-description').value,
+            price: parseFloat(document.getElementById('edit-price').value),
+            quantity: parseInt(document.getElementById('edit-quantity').value),
+            media: finalMedia,
+            mediaType: finalMediaType,
+            createdAt: products[index].createdAt,
+            updatedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem("products", JSON.stringify(products));
+        alert("✅ Producto actualizado correctamente");
+        
+        closeEditModal();
+        loadProductsList();
+        
+        // Limpiar variables temporales
+        window.newEditMedia = null;
+        window.newEditMediaType = null;
+        window.currentEditIndex = null;
+    }
+}
+
+// Función para cerrar modal de edición
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.add('hidden');
+    
+    // Limpiar variables temporales
+    window.newEditMedia = null;
+    window.newEditMediaType = null;
+    window.currentEditIndex = null;
+    window.uploadingForEdit = false;
+}
+
+// Función para abrir modal de confirmación de eliminación
+function openDeleteModal(index) {
+    productToDeleteIndex = index;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+// Función para cerrar modal de confirmación
+function closeConfirmModal() {
+    productToDeleteIndex = null;
+    document.getElementById('confirm-modal').classList.add('hidden');
+}
+
+// Función para confirmar eliminación
+function confirmDelete() {
+    if (productToDeleteIndex !== null) {
+        const products = JSON.parse(localStorage.getItem("products")) || [];
+        products.splice(productToDeleteIndex, 1);
+        localStorage.setItem("products", JSON.stringify(products));
+        
+        alert("🗑️ Producto eliminado correctamente");
+        closeConfirmModal();
+        loadProductsList();
+    }
+}
+
+// Función para eliminar todos los productos
+function deleteAllProducts() {
+    if (confirm("¿Estás seguro de que quieres eliminar TODOS los productos? Esta acción no se puede deshacer.")) {
+        localStorage.removeItem("products");
+        alert("🗑️ Todos los productos han sido eliminados");
+        loadProductsList();
+    }
+}
 
 // Cuando el documento esté listo
 document.addEventListener("DOMContentLoaded", function() {
@@ -255,7 +483,7 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Error: Cloudinary no se cargó correctamente. Recarga la página.");
     }
     
-    // Event listeners para botones de subida
+    // Event listeners
     document.getElementById('upload_image').addEventListener('click', () => {
         if (myImageWidget) myImageWidget.open();
     });
@@ -264,20 +492,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (myVideoWidget) myVideoWidget.open();
     });
     
-    // Event listeners para formularios
     document.getElementById('product-form').addEventListener('submit', saveProduct);
     document.getElementById('edit-product-form').addEventListener('submit', saveProductEdit);
-    
-    // ✅ EVENT LISTENERS CORREGIDOS PARA PESTAÑAS
-    document.getElementById('tab-add').addEventListener('click', function(e) {
-        e.preventDefault();
-        switchTab('add');
-    });
-    
-    document.getElementById('tab-manage').addEventListener('click', function(e) {
-        e.preventDefault();
-        switchTab('manage');
-    });
     
     // Cerrar modales al hacer clic fuera
     document.getElementById('edit-modal').addEventListener('click', function(e) {
@@ -288,12 +504,17 @@ document.addEventListener("DOMContentLoaded", function() {
         if (e.target === this) closeConfirmModal();
     });
     
-    // Cargar productos inicialmente si estamos en la pestaña de gestión
-    if (document.getElementById('content-manage').classList.contains('active')) {
-        loadProductsList();
-    }
-    
     console.log("✅ Event listeners configurados correctamente");
 });
 
-// ... (las funciones globales se mantienen igual)
+// Hacer funciones globales
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.closeEditModal = closeEditModal;
+window.closeConfirmModal = closeConfirmModal;
+window.confirmDelete = confirmDelete;
+window.deleteAllProducts = deleteAllProducts;
+window.switchTab = switchTab;
+window.openImageUpload = openImageUpload;
+window.openVideoUpload = openVideoUpload;
+window.keepOriginalMedia = keepOriginalMedia;

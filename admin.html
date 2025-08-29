@@ -30,6 +30,9 @@
     .product-item:hover {
       transform: translateX(5px);
     }
+    .max-h-90vh {
+      max-height: 90vh;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -38,10 +41,10 @@
 
     <!-- Menú de pestañas -->
     <div class="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg">
-      <button id="tab-add" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold active">
+      <button id="tab-add" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold active" onclick="switchTab('add')">
         ➕ Agregar Producto
       </button>
-      <button id="tab-manage" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold">
+      <button id="tab-manage" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold" onclick="switchTab('manage')">
         📋 Gestionar Productos
       </button>
     </div>
@@ -138,8 +141,8 @@
 
   <!-- Modal para Editar Producto -->
   <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4">
-      <h2 class="text-xl font-bold mb-4">Editar Producto</h2>
+    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4 max-h-90vh overflow-y-auto">
+      <h2 class="text-xl font-bold mb-4">✏️ Editar Producto</h2>
       
       <form id="edit-product-form">
         <input type="hidden" id="edit-index">
@@ -166,7 +169,12 @@
             </div>
           </div>
           
-          <div id="edit-media-preview" class="text-center"></div>
+          <div class="border-t pt-4">
+            <h3 class="font-semibold mb-3">Multimedia</h3>
+            <div id="edit-media-preview" class="text-center">
+              <!-- Aquí se mostrará la vista previa -->
+            </div>
+          </div>
         </div>
 
         <div class="flex gap-3 mt-6">
@@ -174,7 +182,7 @@
             Cancelar
           </button>
           <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-            Guardar Cambios
+            💾 Guardar Cambios
           </button>
         </div>
       </form>
