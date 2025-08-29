@@ -7,94 +7,131 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
   <style>
-    .preview-container {
-      transition: all 0.3s ease;
-    }
     .preview-media {
       max-height: 200px;
       object-fit: contain;
     }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .tab-button {
+      transition: all 0.3s ease;
+    }
+    .tab-button.active {
+      background-color: #3B82F6;
+      color: white;
+    }
+    .product-item {
+      transition: all 0.3s ease;
+    }
+    .product-item:hover {
+      transform: translateX(5px);
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl">
+  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-4xl">
     <h1 class="text-2xl font-bold mb-6 text-center">Panel Administrador</h1>
 
-    <!-- Formulario de producto -->
-    <form id="product-form" class="space-y-4 mb-6">
-      <!-- Nombre del Producto -->
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="product-name">
-          Nombre del Producto *
-        </label>
-        <input type="text" id="product-name" required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-               placeholder="Ej: Laptop Gamer">
-      </div>
-
-      <!-- Descripción -->
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="product-description">
-          Descripción *
-        </label>
-        <textarea id="product-description" required rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Describe las características del producto..."></textarea>
-      </div>
-
-      <!-- Precio y Cantidad -->
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-price">
-            Precio (S/) *
-          </label>
-          <input type="number" id="product-price" required step="0.01" min="0"
-                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                 placeholder="0.00">
-        </div>
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-quantity">
-            Cantidad *
-          </label>
-          <input type="number" id="product-quantity" required min="1"
-                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                 placeholder="0">
-        </div>
-      </div>
-
-      <!-- Botones para subir medios -->
-      <div class="grid grid-cols-2 gap-4">
-        <button type="button" id="upload_image"
-          class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-          📸 Subir Imagen
-        </button>
-        <button type="button" id="upload_video"
-          class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
-          🎥 Subir Video
-        </button>
-      </div>
-    </form>
-
-    <!-- Vista previa de medios -->
-    <div id="preview" class="hidden mb-6">
-      <h3 class="font-medium text-gray-700 mb-2">Vista Previa:</h3>
-      <div id="preview-media" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-        <!-- Aquí se mostrará la imagen o video -->
-      </div>
-      <p class="mt-2 text-gray-600 text-sm break-all text-center" id="preview-url"></p>
+    <!-- Menú de pestañas -->
+    <div class="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg">
+      <button id="tab-add" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold active">
+        ➕ Agregar Producto
+      </button>
+      <button id="tab-manage" class="tab-button flex-1 py-2 px-4 rounded-md font-semibold">
+        📋 Gestionar Productos
+      </button>
     </div>
 
-    <!-- Guardar producto -->
-    <button type="submit" form="product-form" id="save-product-btn"
-      class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg">
-      💾 Guardar Producto
-    </button>
+    <!-- Pestaña: Agregar Producto -->
+    <div id="content-add" class="tab-content active">
+      <form id="product-form" class="space-y-4">
+        <!-- Nombre del Producto -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-name">
+            Nombre del Producto *
+          </label>
+          <input type="text" id="product-name" required
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="Ej: Laptop Gamer">
+        </div>
 
-    <!-- Lista de productos guardados -->
-    <div id="products-list" class="mt-8 hidden">
-      <h3 class="font-bold text-gray-700 mb-4">Productos Guardados</h3>
-      <div id="products-container" class="space-y-3">
+        <!-- Descripción -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="product-description">
+            Descripción *
+          </label>
+          <textarea id="product-description" required rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Describe las características del producto..."></textarea>
+        </div>
+
+        <!-- Precio y Cantidad -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="product-price">
+              Precio (S/) *
+            </label>
+            <input type="number" id="product-price" required step="0.01" min="0"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="0.00">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="product-quantity">
+              Cantidad *
+            </label>
+            <input type="number" id="product-quantity" required min="1"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="0">
+          </div>
+        </div>
+
+        <!-- Botones para subir medios -->
+        <div class="grid grid-cols-2 gap-4">
+          <button type="button" id="upload_image"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+            📸 Subir Imagen
+          </button>
+          <button type="button" id="upload_video"
+            class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+            🎥 Subir Video
+          </button>
+        </div>
+
+        <!-- Vista previa de medios -->
+        <div id="preview" class="hidden mt-4">
+          <h3 class="font-medium text-gray-700 mb-2">Vista Previa:</h3>
+          <div id="preview-media" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+            <!-- Aquí se mostrará la imagen o video -->
+          </div>
+          <p class="mt-2 text-gray-600 text-sm break-all text-center" id="preview-url"></p>
+        </div>
+
+        <!-- Guardar producto -->
+        <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg mt-6">
+          💾 Guardar Producto
+        </button>
+      </form>
+    </div>
+
+    <!-- Pestaña: Gestionar Productos -->
+    <div id="content-manage" class="tab-content">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold mb-4">Productos Existentes</h2>
+        <p class="text-gray-600">Total: <span id="products-count">0</span> productos</p>
+      </div>
+
+      <div id="products-container" class="space-y-3 max-h-96 overflow-y-auto">
         <!-- Los productos se mostrarán aquí -->
+      </div>
+
+      <div class="mt-6">
+        <button onclick="deleteAllProducts()" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg">
+          🗑️ Eliminar Todos los Productos
+        </button>
       </div>
     </div>
   </div>

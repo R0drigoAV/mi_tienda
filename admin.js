@@ -2,6 +2,7 @@
 let myImageWidget, myVideoWidget;
 let currentMediaUrl = '';
 let currentMediaType = '';
+let productToDeleteIndex = null;
 
 // Configurar widgets de Cloudinary
 function initCloudinary() {
@@ -120,7 +121,8 @@ function saveProduct(event) {
     
     // Limpiar formulario
     resetForm();
-    updateProductsList();
+    // Actualizar la lista de productos en la pestaña de gestión
+    loadProductsList();
 }
 
 // Resetear formulario
@@ -131,48 +133,170 @@ function resetForm() {
     currentMediaType = '';
 }
 
-// Mostrar lista de productos
-function updateProductsList() {
+// Cargar lista de productos en la pestaña de gestión
+function loadProductsList() {
     const products = JSON.parse(localStorage.getItem("products")) || [];
     const container = document.getElementById('products-container');
-    const listSection = document.getElementById('products-list');
+    const countElement = document.getElementById('products-count');
     
-    console.log("📋 Actualizando lista de productos:", products.length);
+    console.log("📋 Cargando lista de productos:", products.length);
+    countElement.textContent = products.length;
     
     if (products.length === 0) {
-        listSection.classList.add('hidden');
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-16" />
+                </svg>
+                <p>No hay productos guardados</p>
+            </div>
+        `;
         return;
     }
     
-    listSection.classList.remove('hidden');
     container.innerHTML = '';
     
     products.forEach((product, index) => {
         const productDiv = document.createElement('div');
-        productDiv.className = 'bg-gray-50 p-3 rounded-lg border';
+        productDiv.className = 'product-item bg-gray-50 p-4 rounded-lg border';
         productDiv.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div class="flex-1">
-                    <h4 class="font-semibold">${product.name}</h4>
-                    <p class="text-sm text-gray-600">S/ ${product.price.toFixed(2)}</p>
-                    <p class="text-sm text-gray-500">Stock: ${product.quantity}</p>
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                    ${product.mediaType === 'video' ? 
+                        `<video src="${product.media}" class="w-16 h-16 object-cover rounded" controls></video>` :
+                        `<img src="${product.media}" alt="${product.name}" class="w-16 h-16 object-cover rounded">`
+                    }
                 </div>
-                <button onclick="deleteProduct(${index})" class="text-red-500 hover:text-red-700 ml-2">
-                    🗑️
-                </button>
+                <div class="flex-1">
+                    <h4 class="font-semibold text-lg">${product.name}</h4>
+                    <p class="text-gray-600 text-sm">${product.description.substring(0, 50)}${product.description.length > 50 ? '...' : ''}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-green-600 font-bold">S/ ${product.price.toFixed(2)}</span>
+                        <span class="text-sm ${product.quantity > 0 ? 'text-green-600' : 'text-red-600'}">
+                            Stock: ${product.quantity}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openEditModal(${index})" class="text-blue-500 hover:text-blue-700 p-2" title="Editar">
+                        ✏️
+                    </button>
+                    <button onclick="openDeleteModal(${index})" class="text-red-500 hover:text-red-700 p-2" title="Eliminar">
+                        🗑️
+                    </button>
+                </div>
             </div>
         `;
         container.appendChild(productDiv);
     });
 }
 
-// Eliminar producto
-function deleteProduct(index) {
-    if (confirm("¿Estás seguro de eliminar este producto?")) {
-        let products = JSON.parse(localStorage.getItem("products")) || [];
-        products.splice(index, 1);
+// Funciones para cambiar pestañas
+function switchTab(tabName) {
+    // Desactivar todas las pestañas
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activar la pestaña seleccionada
+    document.getElementById(`content-${tabName}`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    // Si es la pestaña de gestión, cargar productos
+    if (tabName === 'manage') {
+        loadProductsList();
+    }
+}
+
+// Funciones de modales (editar y eliminar) - Mantener las mismas del código anterior
+function openEditModal(index) {
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    const product = products[index];
+    
+    if (!product) return;
+    
+    document.getElementById('edit-index').value = index;
+    document.getElementById('edit-name').value = product.name;
+    document.getElementById('edit-description').value = product.description;
+    document.getElementById('edit-price').value = product.price;
+    document.getElementById('edit-quantity').value = product.quantity;
+    
+    const mediaPreview = document.getElementById('edit-media-preview');
+    if (product.mediaType === 'video') {
+        mediaPreview.innerHTML = `
+            <video controls class="w-32 h-32 mx-auto">
+                <source src="${product.media}" type="video/mp4">
+            </video>
+            <p class="text-sm text-gray-500">Video actual</p>
+        `;
+    } else {
+        mediaPreview.innerHTML = `
+            <img src="${product.media}" alt="Imagen actual" class="w-32 h-32 object-contain mx-auto">
+            <p class="text-sm text-gray-500">Imagen actual</p>
+        `;
+    }
+    
+    document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.add('hidden');
+}
+
+function saveProductEdit(event) {
+    event.preventDefault();
+    
+    const index = document.getElementById('edit-index').value;
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    
+    if (index >= 0 && index < products.length) {
+        products[index] = {
+            ...products[index],
+            name: document.getElementById('edit-name').value,
+            description: document.getElementById('edit-description').value,
+            price: parseFloat(document.getElementById('edit-price').value),
+            quantity: parseInt(document.getElementById('edit-quantity').value),
+            updatedAt: new Date().toISOString()
+        };
+        
         localStorage.setItem("products", JSON.stringify(products));
-        updateProductsList();
+        alert("✅ Producto actualizado correctamente");
+        
+        closeEditModal();
+        loadProductsList();
+    }
+}
+
+function openDeleteModal(index) {
+    productToDeleteIndex = index;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+    productToDeleteIndex = null;
+    document.getElementById('confirm-modal').classList.add('hidden');
+}
+
+function confirmDelete() {
+    if (productToDeleteIndex !== null) {
+        const products = JSON.parse(localStorage.getItem("products")) || [];
+        products.splice(productToDeleteIndex, 1);
+        localStorage.setItem("products", JSON.stringify(products));
+        
+        alert("🗑️ Producto eliminado correctamente");
+        closeConfirmModal();
+        loadProductsList();
+    }
+}
+
+function deleteAllProducts() {
+    if (confirm("¿Estás seguro de que quieres eliminar TODOS los productos? Esta acción no se puede deshacer.")) {
+        localStorage.removeItem("products");
+        alert("🗑️ Todos los productos han sido eliminados");
+        loadProductsList();
     }
 }
 
@@ -190,190 +314,19 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Event listeners
     document.getElementById('upload_image').addEventListener('click', () => {
-        console.log("📸 Abriendo widget de imágenes...");
         if (myImageWidget) myImageWidget.open();
     });
     
     document.getElementById('upload_video').addEventListener('click', () => {
-        console.log("🎥 Abriendo widget de videos...");
         if (myVideoWidget) myVideoWidget.open();
     });
     
     document.getElementById('product-form').addEventListener('submit', saveProduct);
-    
-    // Cargar lista de productos
-    updateProductsList();
-    
-    console.log("✅ Event listeners configurados correctamente");
-});
-
-// Función global para eliminar productos
-window.deleteProduct = deleteProduct;
-
-// Variables para modales
-let productToDeleteIndex = null;
-
-// Función para abrir modal de edición
-function openEditModal(index) {
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    const product = products[index];
-    
-    if (!product) return;
-    
-    // Llenar el formulario con los datos del producto
-    document.getElementById('edit-index').value = index;
-    document.getElementById('edit-name').value = product.name;
-    document.getElementById('edit-description').value = product.description;
-    document.getElementById('edit-price').value = product.price;
-    document.getElementById('edit-quantity').value = product.quantity;
-    
-    // Mostrar vista previa del media
-    const mediaPreview = document.getElementById('edit-media-preview');
-    if (product.mediaType === 'video') {
-        mediaPreview.innerHTML = `
-            <video controls class="w-32 h-32 mx-auto">
-                <source src="${product.media}" type="video/mp4">
-            </video>
-            <p class="text-sm text-gray-500">Video actual</p>
-        `;
-    } else {
-        mediaPreview.innerHTML = `
-            <img src="${product.media}" alt="Imagen actual" class="w-32 h-32 object-contain mx-auto">
-            <p class="text-sm text-gray-500">Imagen actual</p>
-        `;
-    }
-    
-    // Mostrar modal
-    document.getElementById('edit-modal').classList.remove('hidden');
-}
-
-// Función para cerrar modal de edición
-function closeEditModal() {
-    document.getElementById('edit-modal').classList.add('hidden');
-}
-
-// Función para guardar cambios de edición
-function saveProductEdit(event) {
-    event.preventDefault();
-    
-    const index = document.getElementById('edit-index').value;
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    
-    if (index >= 0 && index < products.length) {
-        // Actualizar producto
-        products[index] = {
-            ...products[index], // Mantener media y mediaType
-            name: document.getElementById('edit-name').value,
-            description: document.getElementById('edit-description').value,
-            price: parseFloat(document.getElementById('edit-price').value),
-            quantity: parseInt(document.getElementById('edit-quantity').value),
-            updatedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem("products", JSON.stringify(products));
-        alert("✅ Producto actualizado correctamente");
-        
-        closeEditModal();
-        updateProductsList();
-    }
-}
-
-// Función para abrir modal de confirmación de eliminación
-function openDeleteModal(index) {
-    productToDeleteIndex = index;
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
-
-// Función para cerrar modal de confirmación
-function closeConfirmModal() {
-    productToDeleteIndex = null;
-    document.getElementById('confirm-modal').classList.add('hidden');
-}
-
-// Función para confirmar eliminación
-function confirmDelete() {
-    if (productToDeleteIndex !== null) {
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        products.splice(productToDeleteIndex, 1);
-        localStorage.setItem("products", JSON.stringify(products));
-        
-        alert("🗑️ Producto eliminado correctamente");
-        closeConfirmModal();
-        updateProductsList();
-    }
-}
-
-// Función para eliminar todos los productos
-function deleteAllProducts() {
-    if (confirm("¿Estás seguro de que quieres eliminar TODOS los productos? Esta acción no se puede deshacer.")) {
-        localStorage.removeItem("products");
-        alert("🗑️ Todos los productos han sido eliminados");
-        updateProductsList();
-    }
-}
-
-// Actualizar la función updateProductsList para incluir botones de edición y eliminación
-function updateProductsList() {
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    const container = document.getElementById('products-container');
-    const listSection = document.getElementById('products-list');
-    
-    console.log("📋 Actualizando lista de productos:", products.length);
-    
-    if (products.length === 0) {
-        listSection.classList.add('hidden');
-        return;
-    }
-    
-    listSection.classList.remove('hidden');
-    container.innerHTML = '';
-    
-    products.forEach((product, index) => {
-        const productDiv = document.createElement('div');
-        productDiv.className = 'bg-gray-50 p-4 rounded-lg border';
-        productDiv.innerHTML = `
-            <div class="flex justify-between items-start mb-3">
-                <div class="flex-1">
-                    <h4 class="font-semibold text-lg">${product.name}</h4>
-                    <p class="text-gray-600">S/ ${product.price.toFixed(2)}</p>
-                    <p class="text-sm text-gray-500">Stock: ${product.quantity}</p>
-                    <p class="text-xs text-gray-400">Agregado: ${new Date(product.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="openEditModal(${index})" class="text-blue-500 hover:text-blue-700" title="Editar">
-                        ✏️
-                    </button>
-                    <button onclick="openDeleteModal(${index})" class="text-red-500 hover:text-red-700" title="Eliminar">
-                        🗑️
-                    </button>
-                </div>
-            </div>
-            <div class="text-center">
-                ${product.mediaType === 'video' ? 
-                    `<video src="${product.media}" class="w-20 h-20 object-cover mx-auto rounded" controls></video>` :
-                    `<img src="${product.media}" alt="${product.name}" class="w-20 h-20 object-cover mx-auto rounded">`
-                }
-            </div>
-        `;
-        container.appendChild(productDiv);
-    });
-    
-    // Agregar botón para eliminar todos los productos si hay más de 1
-    if (products.length > 0) {
-        const deleteAllBtn = document.createElement('button');
-        deleteAllBtn.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4';
-        deleteAllBtn.innerHTML = '🗑️ Eliminar Todos los Productos';
-        deleteAllBtn.onclick = deleteAllProducts;
-        container.appendChild(deleteAllBtn);
-    }
-}
-
-// Agregar event listener para el formulario de edición
-document.addEventListener("DOMContentLoaded", function() {
-    // ... código existente ...
-    
-    // Agregar event listener para el formulario de edición
     document.getElementById('edit-product-form').addEventListener('submit', saveProductEdit);
+    
+    // Event listeners para pestañas
+    document.getElementById('tab-add').addEventListener('click', () => switchTab('add'));
+    document.getElementById('tab-manage').addEventListener('click', () => switchTab('manage'));
     
     // Cerrar modales al hacer clic fuera
     document.getElementById('edit-modal').addEventListener('click', function(e) {
@@ -383,12 +336,15 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('confirm-modal').addEventListener('click', function(e) {
         if (e.target === this) closeConfirmModal();
     });
+    
+    console.log("✅ Event listeners configurados correctamente");
 });
 
-// Hacer funciones globales para que funcionen en los botones
+// Hacer funciones globales
 window.openEditModal = openEditModal;
 window.openDeleteModal = openDeleteModal;
 window.closeEditModal = closeEditModal;
 window.closeConfirmModal = closeConfirmModal;
 window.confirmDelete = confirmDelete;
 window.deleteAllProducts = deleteAllProducts;
+window.switchTab = switchTab;
