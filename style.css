@@ -1,57 +1,33 @@
+/* Estilos generales */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
 }
 
-.navbar {
-  background: #222;
-  color: white;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
+/* Efectos de hover para tarjetas de producto */
+.bg-white.rounded-2xl.shadow-lg {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
+.bg-white.rounded-2xl.shadow-lg:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-main {
-  padding: 20px;
+/* Estilos para botones */
+button, a.bg-blue-500 {
+  transition: background-color 0.3s ease;
 }
 
-.product-list {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
+/* Estilos para la imagen de previsualización */
+#preview-img {
+  transition: opacity 0.3s ease;
 }
 
-.product-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: white;
-  padding: 10px;
-  width: 200px;
-  text-align: center;
-}
-
-.product-card img {
-  max-width: 100%;
-  border-radius: 5px;
-}
-
-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  margin-top: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-button:hover {
-  background: #0056b3;
+/* Responsividad adicional */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }

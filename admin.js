@@ -29,6 +29,10 @@ document.getElementById("save_product").addEventListener("click", function() {
     products.push({ image: url });
     localStorage.setItem("products", JSON.stringify(products));
     alert("Producto guardado con éxito 🚀");
+    
+    // Limpiar vista previa
+    document.getElementById("preview").classList.add("hidden");
+    localStorage.removeItem("lastUploadedImage");
   } else {
     alert("Primero sube una imagen 📷");
   }

@@ -2,16 +2,64 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detalle Producto</title>
-  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <nav class="navbar">
-    <a href="index.html" class="btn-store">⬅ Volver a Tienda</a>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-gray-800 text-white py-4 px-6">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="index.html" class="text-lg font-semibold">← Volver a Tienda</a>
+      <a href="admin.html" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+        Panel Admin
+      </a>
+    </div>
   </nav>
 
-  <main id="product-detail"></main>
+  <main class="container mx-auto py-8 px-4">
+    <div id="product-detail" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+      <!-- El contenido del producto se cargará aquí con JavaScript -->
+    </div>
+  </main>
 
-  <script src="script.js"></script>
+  <script>
+    // Cargar detalles del producto
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const productIndex = urlParams.get('index');
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      const productDetail = document.getElementById("product-detail");
+      
+      if (productIndex !== null && products[productIndex]) {
+        const product = products[productIndex];
+        productDetail.innerHTML = `
+          <img src="${product.image}" alt="Producto ${parseInt(productIndex) + 1}" class="w-full h-96 object-cover">
+          <div class="p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Producto ${parseInt(productIndex) + 1}</h2>
+            <p class="text-gray-600 mb-6">Este es un producto increíble con una imagen subida a Cloudinary y mostrada a través de GitHub Pages.</p>
+            <div class="bg-gray-100 p-4 rounded-lg">
+              <h3 class="font-medium text-gray-700 mb-2">URL de la imagen en Cloudinary:</h3>
+              <p class="text-sm text-gray-600 break-all">${product.image}</p>
+            </div>
+          </div>
+        `;
+      } else {
+        productDetail.innerHTML = `
+          <div class="p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Producto no encontrado</h3>
+            <p class="mt-1 text-gray-500">El producto que buscas no existe o ha sido eliminado.</p>
+            <div class="mt-6">
+              <a href="index.html" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                Volver a la Tienda
+              </a>
+            </div>
+          </div>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
