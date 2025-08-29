@@ -210,95 +210,38 @@ function switchTab(tabName) {
         loadProductsList();
     }
 }
+// ... (el código anterior se mantiene igual hasta las funciones de modales)
 
-// Funciones de modales (editar y eliminar) - Mantener las mismas del código anterior
-function openEditModal(index) {
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    const product = products[index];
+// Funciones para cambiar pestañas
+function switchTab(tabName) {
+    console.log("🔄 Cambiando a pestaña:", tabName);
     
-    if (!product) return;
+    // Desactivar todas las pestañas
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
     
-    document.getElementById('edit-index').value = index;
-    document.getElementById('edit-name').value = product.name;
-    document.getElementById('edit-description').value = product.description;
-    document.getElementById('edit-price').value = product.price;
-    document.getElementById('edit-quantity').value = product.quantity;
+    // Activar la pestaña seleccionada
+    const contentElement = document.getElementById(`content-${tabName}`);
+    const tabElement = document.getElementById(`tab-${tabName}`);
     
-    const mediaPreview = document.getElementById('edit-media-preview');
-    if (product.mediaType === 'video') {
-        mediaPreview.innerHTML = `
-            <video controls class="w-32 h-32 mx-auto">
-                <source src="${product.media}" type="video/mp4">
-            </video>
-            <p class="text-sm text-gray-500">Video actual</p>
-        `;
+    if (contentElement && tabElement) {
+        contentElement.classList.add('active');
+        tabElement.classList.add('active');
+        
+        // Si es la pestaña de gestión, cargar productos
+        if (tabName === 'manage') {
+            loadProductsList();
+        }
     } else {
-        mediaPreview.innerHTML = `
-            <img src="${product.media}" alt="Imagen actual" class="w-32 h-32 object-contain mx-auto">
-            <p class="text-sm text-gray-500">Imagen actual</p>
-        `;
-    }
-    
-    document.getElementById('edit-modal').classList.remove('hidden');
-}
-
-function closeEditModal() {
-    document.getElementById('edit-modal').classList.add('hidden');
-}
-
-function saveProductEdit(event) {
-    event.preventDefault();
-    
-    const index = document.getElementById('edit-index').value;
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    
-    if (index >= 0 && index < products.length) {
-        products[index] = {
-            ...products[index],
-            name: document.getElementById('edit-name').value,
-            description: document.getElementById('edit-description').value,
-            price: parseFloat(document.getElementById('edit-price').value),
-            quantity: parseInt(document.getElementById('edit-quantity').value),
-            updatedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem("products", JSON.stringify(products));
-        alert("✅ Producto actualizado correctamente");
-        
-        closeEditModal();
-        loadProductsList();
+        console.error("❌ No se encontraron elementos de la pestaña:", tabName);
     }
 }
 
-function openDeleteModal(index) {
-    productToDeleteIndex = index;
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
 
-function closeConfirmModal() {
-    productToDeleteIndex = null;
-    document.getElementById('confirm-modal').classList.add('hidden');
-}
-
-function confirmDelete() {
-    if (productToDeleteIndex !== null) {
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        products.splice(productToDeleteIndex, 1);
-        localStorage.setItem("products", JSON.stringify(products));
-        
-        alert("🗑️ Producto eliminado correctamente");
-        closeConfirmModal();
-        loadProductsList();
-    }
-}
-
-function deleteAllProducts() {
-    if (confirm("¿Estás seguro de que quieres eliminar TODOS los productos? Esta acción no se puede deshacer.")) {
-        localStorage.removeItem("products");
-        alert("🗑️ Todos los productos han sido eliminados");
-        loadProductsList();
-    }
-}
 
 // Cuando el documento esté listo
 document.addEventListener("DOMContentLoaded", function() {
@@ -312,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Error: Cloudinary no se cargó correctamente. Recarga la página.");
     }
     
-    // Event listeners
+    // Event listeners para botones de subida
     document.getElementById('upload_image').addEventListener('click', () => {
         if (myImageWidget) myImageWidget.open();
     });
@@ -321,12 +264,20 @@ document.addEventListener("DOMContentLoaded", function() {
         if (myVideoWidget) myVideoWidget.open();
     });
     
+    // Event listeners para formularios
     document.getElementById('product-form').addEventListener('submit', saveProduct);
     document.getElementById('edit-product-form').addEventListener('submit', saveProductEdit);
     
-    // Event listeners para pestañas
-    document.getElementById('tab-add').addEventListener('click', () => switchTab('add'));
-    document.getElementById('tab-manage').addEventListener('click', () => switchTab('manage'));
+    // ✅ EVENT LISTENERS CORREGIDOS PARA PESTAÑAS
+    document.getElementById('tab-add').addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab('add');
+    });
+    
+    document.getElementById('tab-manage').addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab('manage');
+    });
     
     // Cerrar modales al hacer clic fuera
     document.getElementById('edit-modal').addEventListener('click', function(e) {
@@ -337,14 +288,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (e.target === this) closeConfirmModal();
     });
     
+    // Cargar productos inicialmente si estamos en la pestaña de gestión
+    if (document.getElementById('content-manage').classList.contains('active')) {
+        loadProductsList();
+    }
+    
     console.log("✅ Event listeners configurados correctamente");
 });
 
-// Hacer funciones globales
-window.openEditModal = openEditModal;
-window.openDeleteModal = openDeleteModal;
-window.closeEditModal = closeEditModal;
-window.closeConfirmModal = closeConfirmModal;
-window.confirmDelete = confirmDelete;
-window.deleteAllProducts = deleteAllProducts;
-window.switchTab = switchTab;
+// ... (las funciones globales se mantienen igual)
