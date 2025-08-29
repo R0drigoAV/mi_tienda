@@ -1,133 +1,352 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalle Producto</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .media-container {
-      max-height: 70vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #f8f9fa;
-    }
-    .media-content {
-      max-width: 100%;
-      max-height: 70vh;
-      object-fit: contain;
-    }
-    .product-details {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .product-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .navigation {
+            background: #2d3748;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: #4a5568;
+        }
+        
+        .product-content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .image-section {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .media-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .media-container img,
+        .media-container video {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+        }
+        
+        .info-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 40px;
+            background: white;
+        }
+        
+        .stock {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .out-of-stock {
+            background: #f44336;
+        }
+        
+        h1 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .description {
+            color: #636e72;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .price {
+            color: #2d3436;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .buy-btn {
+            background: #e84393;
+            color: white;
+            flex: 2;
+        }
+        
+        .buy-btn:hover {
+            background: #d63073;
+        }
+        
+        .cart-btn {
+            background: #dfe6e9;
+            color: #2d3436;
+            flex: 1;
+        }
+        
+        .cart-btn:hover {
+            background: #b2bec3;
+        }
+        
+        .product-details {
+            border-top: 1px solid #dfe6e9;
+            padding-top: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .detail-title {
+            width: 120px;
+            color: #636e72;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #2d3436;
+            flex: 1;
+        }
+        
+        .cloudinary-url {
+            background: #f1f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .product-content {
+                flex-direction: column;
+            }
+            
+            .image-section, .info-section {
+                width: 100%;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-links {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .nav-links a {
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-gray-800 text-white py-4 px-6">
-    <div class="container mx-auto flex justify-between items-center">
-      <a href="index.html" class="text-lg font-semibold">← Volver a Tienda</a>
-      <a href="admin.html" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-        Panel Admin
-      </a>
-    </div>
-  </nav>
-
-  <main class="container mx-auto py-8 px-4">
-    <div id="product-detail" class="bg-white rounded-2xl shadow-lg overflow-hidden product-details">
-      <!-- El contenido del producto se cargará aquí con JavaScript -->
-    </div>
-  </main>
-
-  <script>
-    // Cargar detalles del producto
-    document.addEventListener("DOMContentLoaded", () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const productIndex = urlParams.get('index');
-      const products = JSON.parse(localStorage.getItem("products")) || [];
-      const productDetail = document.getElementById("product-detail");
-      
-      if (productIndex !== null && products[productIndex]) {
-        const product = products[productIndex];
+<body>
+    <div class="product-container">
+        <!-- Navegación -->
+        <div class="navigation">
+            <h2><i class="fas fa-store"></i> Mi Tienda</h2>
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+                <a href="admin.html"><i class="fas fa-cog"></i> Administrar</a>
+            </div>
+        </div>
         
-        // Determinar si es imagen o video
-        const mediaContent = product.mediaType === 'video' ? 
-          `<div class="media-container">
-            <video controls class="media-content">
-              <source src="${product.media}" type="video/mp4">
-            </video>
-          </div>` :
-          `<div class="media-container">
-            <img src="${product.media}" alt="${product.name}" class="media-content">
-          </div>`;
-        
-        productDetail.innerHTML = `
-          ${mediaContent}
-          
-          <div class="p-6">
-            <div class="flex flex-col md:flex-row justify-between items-start mb-4 gap-4">
-              <h2 class="text-3xl font-bold text-gray-800">${product.name}</h2>
-              <span class="text-3xl font-bold text-green-600">S/ ${product.price.toFixed(2)}</span>
+        <!-- Contenido del producto -->
+        <div class="product-content">
+            <div class="image-section">
+                <div class="media-container">
+                    <div class="image-placeholder">
+                        <i class="fas fa-image" style="font-size: 64px; color: #6c757d;"></i>
+                        <p>Cargando imagen...</p>
+                    </div>
+                </div>
             </div>
             
-            <div class="mb-6">
-              <span class="inline-block bg-${product.quantity > 0 ? 'green' : 'red'}-100 text-${product.quantity > 0 ? 'green' : 'red'}-800 text-sm px-3 py-1 rounded-full mb-4">
-                ${product.quantity > 0 ? `En stock: ${product.quantity} unidades` : 'Agotado'}
-              </span>
+            <div class="info-section">
+                <span class="stock" id="stock-badge"><i class="fas fa-check-circle"></i> Cargando...</span>
+                <h1 id="product-name">Cargando...</h1>
+                
+                <div class="description">
+                    <p id="product-description">Cargando descripción...</p>
+                </div>
+                
+                <div class="price" id="product-price">S/ 0.00</div>
+                
+                <div class="action-buttons">
+                    <button class="btn buy-btn"><i class="fas fa-shopping-bag"></i> Comprar ahora</button>
+                    <button class="btn cart-btn"><i class="fas fa-shopping-cart"></i> Añadir al carrito</button>
+                </div>
+                
+                <div class="product-details">
+                    <div class="detail-item">
+                        <div class="detail-title">Disponibilidad:</div>
+                        <div class="detail-value" id="availability">Cargando...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-title">Unidades:</div>
+                        <div class="detail-value" id="quantity">Cargando...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-title">Agregado:</div>
+                        <div class="detail-value" id="created-date">Cargando...</div>
+                    </div>
+                </div>
+                
+                <div class="cloudinary-url">
+                    <strong>URL de Cloudinary:</strong>
+                    <p id="media-url">Cargando...</p>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar detalles del producto
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productIndex = urlParams.get('index');
+            const products = JSON.parse(localStorage.getItem("products")) || [];
             
-            <div class="mb-6">
-              <h3 class="text-xl font-semibold text-gray-700 mb-2">Descripción</h3>
-              <p class="text-gray-600 leading-relaxed">${product.description}</p>
-            </div>
-            
-            <div class="bg-gray-50 p-4 rounded-lg mb-6">
-              <h4 class="font-medium text-gray-700 mb-2">Información del producto:</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span class="text-gray-500">Precio:</span>
-                  <p class="font-semibold">S/ ${product.price.toFixed(2)}</p>
-                </div>
-                <div>
-                  <span class="text-gray-500">Disponibilidad:</span>
-                  <p class="font-semibold">${product.quantity > 0 ? 'En stock' : 'Agotado'}</p>
-                </div>
-                <div>
-                  <span class="text-gray-500">Unidades disponibles:</span>
-                  <p class="font-semibold">${product.quantity}</p>
-                </div>
-                <div>
-                  <span class="text-gray-500">Agregado:</span>
-                  <p class="font-semibold">${new Date(product.createdAt).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="bg-blue-50 p-4 rounded-lg">
-              <h4 class="font-medium text-gray-700 mb-2">URL del medio en Cloudinary:</h4>
-              <p class="text-sm text-gray-600 break-all">${product.media}</p>
-            </div>
-          </div>
-        `;
-      } else {
-        productDetail.innerHTML = `
-          <div class="p-8 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Producto no encontrado</h3>
-            <p class="mt-1 text-gray-500">El producto que buscas no existe o ha sido eliminado.</p>
-            <div class="mt-6">
-              <a href="index.html" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                Volver a la Tienda
-              </a>
-            </div>
-          </div>
-        `;
-      }
-    });
-  </script>
+            if (productIndex !== null && products[productIndex]) {
+                const product = products[productIndex];
+                
+                // Actualizar la UI con los datos del producto
+                document.getElementById('product-name').textContent = product.name;
+                document.getElementById('product-description').textContent = product.description;
+                document.getElementById('product-price').textContent = `S/ ${product.price.toFixed(2)}`;
+                
+                // Actualizar disponibilidad
+                const stockElement = document.getElementById('stock-badge');
+                const availabilityElement = document.getElementById('availability');
+                const quantityElement = document.getElementById('quantity');
+                
+                if (product.quantity > 0) {
+                    stockElement.innerHTML = `<i class="fas fa-check-circle"></i> En stock: ${product.quantity} unidades`;
+                    stockElement.classList.remove('out-of-stock');
+                    availabilityElement.textContent = 'Disponible';
+                } else {
+                    stockElement.innerHTML = '<i class="fas fa-times-circle"></i> Agotado';
+                    stockElement.classList.add('out-of-stock');
+                    availabilityElement.textContent = 'Agotado';
+                }
+                
+                quantityElement.textContent = product.quantity;
+                
+                // Fecha de creación
+                const createdDate = new Date(product.createdAt);
+                document.getElementById('created-date').textContent = createdDate.toLocaleDateString();
+                
+                // URL de Cloudinary
+                document.getElementById('media-url').textContent = product.media;
+                
+                // Mostrar imagen o video
+                const mediaContainer = document.querySelector('.media-container');
+                if (product.mediaType === 'video') {
+                    mediaContainer.innerHTML = `
+                        <video controls class="w-full h-auto">
+                            <source src="${product.media}" type="video/mp4">
+                            Tu navegador no soporta el elemento de video.
+                        </video>
+                    `;
+                } else {
+                    mediaContainer.innerHTML = `
+                        <img src="${product.media}" alt="${product.name}" class="w-full h-auto">
+                    `;
+                }
+            } else {
+                // Producto no encontrado
+                document.querySelector('.product-content').innerHTML = `
+                    <div class="flex items-center justify-center" style="width: 100%; padding: 60px 20px;">
+                        <div class="text-center">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #e74c3c; margin-bottom: 20px;"></i>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Producto no encontrado</h2>
+                            <p class="text-gray-600 mb-6">El producto que buscas no existe o ha sido eliminado.</p>
+                            <a href="index.html" class="btn buy-btn">
+                                <i class="fas fa-arrow-left"></i> Volver a la tienda
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>
