@@ -5,21 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let products = [];
     try {
         const productsData = localStorage.getItem("products");
-        console.log("📦 Datos crudos de localStorage:", productsData);
-        
         products = JSON.parse(productsData) || [];
-        console.log("✅ Productos parseados:", products);
+        console.log("✅ Productos encontrados:", products.length);
     } catch (error) {
         console.error("❌ Error al cargar productos:", error);
         products = [];
     }
 
     const productList = document.getElementById("product-list");
-    console.log("🎯 Contenedor de productos:", productList);
 
     // Si no hay productos, mostrar mensaje
     if (products.length === 0) {
-        console.log("ℹ️ No hay productos, mostrando mensaje vacío");
         productList.innerHTML = `
             <div class="text-center py-12 col-span-full">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,27 +34,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Mostrar productos
-    console.log("🎨 Renderizando productos...");
     productList.innerHTML = ''; // Limpiar contenedor
     
     products.forEach((product, index) => {
-        console.log("📋 Producto", index, product);
+        console.log("📦 Producto", index, product);
         
-        // Validar que el producto tenga todos los campos necesarios
-        if (!product.media || !product.name) {
-            console.warn("⚠️ Producto incompleto:", product);
+        // Validar que el producto tenga galería
+        if (!product.gallery || product.gallery.length === 0) {
+            console.warn("⚠️ Producto sin galería:", product);
             return;
         }
 
+        // Usar la primera imagen de la galería como miniatura
+        const firstMedia = product.gallery[0];
+        
         let div = document.createElement("div");
         div.className = "bg-white rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 product-card";
         
         // Determinar si es imagen o video
-        const mediaContent = product.mediaType === 'video' ? 
-            `<video class="w-full h-48 object-cover" controls>
-                <source src="${product.media}" type="video/mp4">
-             </video>` :
-            `<img src="${product.media}" alt="${product.name}" class="w-full h-48 object-cover">`;
+        const mediaContent = firstMedia.type === 'video' ? 
+            `<div class="relative">
+                <video class="w-full h-48 object-cover" controls>
+                    <source src="${firstMedia.url}" type="video/mp4">
+                </video>
+                <span class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">VIDEO</span>
+            </div>` :
+            `<img src="${firstMedia.url}" alt="${product.name}" class="w-full h-48 object-cover">`;
         
         div.innerHTML = `
             ${mediaContent}
@@ -79,6 +80,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         Ver Detalles
                     </a>
                 </div>
+                
+                <!-- Indicador de galería múltiple -->
+                ${product.gallery.length > 1 ? 
+                    `<div class="mt-2 text-center">
+                        <span class="text-xs text-gray-500">+${product.gallery.length - 1} medio${product.gallery.length > 2 ? 's' : ''} más</span>
+                    </div>` : ''
+                }
             </div>
         `;
         productList.appendChild(div);
@@ -99,4 +107,3 @@ function checkAndReloadProducts() {
 // Verificar cada segundo durante 5 segundos
 setTimeout(checkAndReloadProducts, 1000);
 setTimeout(checkAndReloadProducts, 3000);
-setTimeout(checkAndReloadProducts, 5000);
