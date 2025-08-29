@@ -31,3 +31,18 @@ button, a.bg-blue-500 {
     padding-right: 1rem;
   }
 }
+
+.media-container {
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.media-content {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain; /* Cambiado de 'cover' a 'contain' */
+}
