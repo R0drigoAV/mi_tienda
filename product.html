@@ -85,6 +85,13 @@
             font-size: 12px;
             z-index: 5;
         }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -99,7 +106,10 @@
 
     <main class="container mx-auto py-8 px-4">
         <div id="product-detail" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-            <!-- El contenido del producto se cargará aquí con JavaScript -->
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin fa-2x text-blue-500 mb-4"></i>
+                <p>Cargando producto...</p>
+            </div>
         </div>
     </main>
 
@@ -110,19 +120,63 @@
 
         // Cargar detalles del producto
         document.addEventListener("DOMContentLoaded", () => {
+            console.log("🔄 Iniciando carga de producto...");
+            
             const urlParams = new URLSearchParams(window.location.search);
             const productIndex = urlParams.get('index');
-            const products = JSON.parse(localStorage.getItem("products")) || [];
-            const productDetail = document.getElementById("product-detail");
             
-            if (productIndex !== null && products[productIndex]) {
+            console.log("📋 Índice de producto desde URL:", productIndex);
+            
+            if (productIndex === null) {
+                console.error("❌ No se proporcionó índice de producto en la URL");
+                renderProductNotFound("No se especificó ningún producto");
+                return;
+            }
+
+            try {
+                // Obtener productos del localStorage
+                const productsData = localStorage.getItem("products");
+                console.log("📦 Datos de productos en localStorage:", productsData);
+                
+                if (!productsData) {
+                    console.error("❌ No hay datos en localStorage");
+                    renderProductNotFound("No se encontraron productos");
+                    return;
+                }
+                
+                const products = JSON.parse(productsData);
+                console.log("✅ Productos parseados:", products);
+                
+                if (!Array.isArray(products)) {
+                    console.error("❌ Los productos no son un array válido");
+                    renderProductNotFound("Datos de productos inválidos");
+                    return;
+                }
+                
+                if (productIndex < 0 || productIndex >= products.length) {
+                    console.error("❌ Índice de producto fuera de rango");
+                    renderProductNotFound("El producto solicitado no existe");
+                    return;
+                }
+                
                 const product = products[productIndex];
+                console.log("📊 Producto encontrado:", product);
+                
+                if (!product) {
+                    console.error("❌ Producto no definido");
+                    renderProductNotFound("El producto no está definido");
+                    return;
+                }
+                
                 mediaElements = product.gallery || [];
+                console.log("🖼️ Medios encontrados:", mediaElements.length);
                 
                 renderProductDetail(product);
                 setupGalleryNavigation();
-            } else {
-                renderProductNotFound();
+                
+            } catch (error) {
+                console.error("❌ Error al cargar producto:", error);
+                renderProductNotFound("Error al cargar el producto: " + error.message);
             }
         });
 
@@ -130,9 +184,11 @@
         function renderProductDetail(product) {
             const mediaContent = renderGallery();
             
-            productDetail.innerHTML = `
+            // Plantilla del producto
+            const productHTML = `
                 <div class="media-container">
                     ${mediaContent}
+                    ${mediaElements.length > 1 ? `
                     <div class="gallery-nav">
                         <button class="nav-btn" id="prev-btn" onclick="changeMedia(-1)">
                             <i class="fas fa-chevron-left"></i>
@@ -141,19 +197,22 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
+                    ` : ''}
                     <div class="video-indicator" id="video-indicator" style="display: none;">
                         <i class="fas fa-video"></i> Video
                     </div>
                 </div>
                 
+                ${mediaElements.length > 0 ? `
                 <div class="gallery-thumbnails" id="gallery-thumbnails">
                     ${renderThumbnails()}
                 </div>
+                ` : ''}
                 
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-3xl font-bold text-gray-800">${product.name}</h2>
-                        <span class="text-3xl font-bold text-green-600">S/ ${product.price.toFixed(2)}</span>
+                        <h2 class="text-3xl font-bold text-gray-800">${product.name || 'Producto sin nombre'}</h2>
+                        <span class="text-3xl font-bold text-green-600">S/ ${product.price ? product.price.toFixed(2) : '0.00'}</span>
                     </div>
                     
                     <div class="mb-6">
@@ -164,7 +223,7 @@
                     
                     <div class="mb-6">
                         <h3 class="text-xl font-semibold text-gray-700 mb-2">Descripción</h3>
-                        <p class="text-gray-600 leading-relaxed">${product.description}</p>
+                        <p class="text-gray-600 leading-relaxed">${product.description || 'Sin descripción'}</p>
                     </div>
                     
                     <div class="bg-gray-50 p-4 rounded-lg mb-6">
@@ -172,7 +231,7 @@
                         <div class="grid grid-cols-2 gap-4 text-sm">
                             <div>
                                 <span class="text-gray-500">Precio:</span>
-                                <p class="font-semibold">S/ ${product.price.toFixed(2)}</p>
+                                <p class="font-semibold">S/ ${product.price ? product.price.toFixed(2) : '0.00'}</p>
                             </div>
                             <div>
                                 <span class="text-gray-500">Disponibilidad:</span>
@@ -180,24 +239,30 @@
                             </div>
                             <div>
                                 <span class="text-gray-500">Unidades:</span>
-                                <p class="font-semibold">${product.quantity}</p>
+                                <p class="font-semibold">${product.quantity || 0}</p>
                             </div>
                             <div>
                                 <span class="text-gray-500">Agregado:</span>
-                                <p class="font-semibold">${new Date(product.createdAt).toLocaleDateString()}</p>
+                                <p class="font-semibold">${product.createdAt ? new Date(product.createdAt).toLocaleDateString() : 'Fecha desconocida'}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
-
+            
+            document.getElementById("product-detail").innerHTML = productHTML;
             updateNavigationButtons();
+            
+            // Mostrar indicador de video si es necesario
+            if (mediaElements.length > 0 && mediaElements[currentMediaIndex].type === 'video') {
+                document.getElementById('video-indicator').style.display = 'block';
+            }
         }
 
         // Renderizar galería principal
         function renderGallery() {
             if (mediaElements.length === 0) {
-                return '<div class="text-center text-gray-500 p-8">No hay medios disponibles</div>';
+                return '<div class="text-center text-gray-500 p-8"><i class="fas fa-image fa-3x mb-4"></i><p>No hay medios disponibles</p></div>';
             }
 
             const media = mediaElements[currentMediaIndex];
@@ -205,6 +270,7 @@
                 return `
                     <video controls class="media-content" id="main-media">
                         <source src="${media.url}" type="video/mp4">
+                        Tu navegador no soporta videos.
                     </video>
                 `;
             } else {
@@ -219,10 +285,12 @@
             return mediaElements.map((media, index) => {
                 const isActive = index === currentMediaIndex ? 'active' : '';
                 if (media.type === 'video') {
-                    // Para videos, usar una miniatura (puedes mejorar esto con Cloudinary)
                     return `
-                        <img src="${media.url}" alt="Miniatura video" 
-                             class="thumbnail ${isActive}" onclick="changeToMedia(${index})">
+                        <div class="thumbnail-container">
+                            <img src="${media.url}" alt="Miniatura video" 
+                                 class="thumbnail ${isActive}" onclick="changeToMedia(${index})">
+                            <div class="video-play-icon">▶</div>
+                        </div>
                     `;
                 } else {
                     return `
@@ -273,24 +341,24 @@
 
         // Actualizar visualización del medio
         function updateMediaDisplay() {
-            const mainMedia = document.getElementById('main-media');
-            const videoIndicator = document.getElementById('video-indicator');
-            const thumbnails = document.querySelectorAll('.thumbnail');
-            
             if (mediaElements.length === 0) return;
             
             const media = mediaElements[currentMediaIndex];
+            const mainMedia = document.getElementById('main-media');
+            const videoIndicator = document.getElementById('video-indicator');
+            const thumbnails = document.querySelectorAll('.thumbnail');
             
             if (media.type === 'video') {
                 mainMedia.outerHTML = `
                     <video controls class="media-content" id="main-media">
                         <source src="${media.url}" type="video/mp4">
+                        Tu navegador no soporta videos.
                     </video>
                 `;
-                videoIndicator.style.display = 'block';
+                if (videoIndicator) videoIndicator.style.display = 'block';
             } else {
                 mainMedia.outerHTML = `<img src="${media.url}" alt="Producto" class="media-content" id="main-media">`;
-                videoIndicator.style.display = 'none';
+                if (videoIndicator) videoIndicator.style.display = 'none';
             }
             
             // Actualizar miniaturas activas
@@ -310,24 +378,27 @@
             const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
             
-            if (mediaElements.length <= 1) {
-                prevBtn.style.display = 'none';
-                nextBtn.style.display = 'none';
-            } else {
-                prevBtn.style.display = 'flex';
-                nextBtn.style.display = 'flex';
+            if (prevBtn && nextBtn) {
+                if (mediaElements.length <= 1) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                } else {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                }
             }
         }
 
         // Renderizar producto no encontrado
-        function renderProductNotFound() {
+        function renderProductNotFound(message = "El producto que buscas no existe o ha sido eliminado.") {
+            const productDetail = document.getElementById("product-detail");
             productDetail.innerHTML = `
                 <div class="p-8 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <h3 class="mt-4 text-lg font-medium text-gray-900">Producto no encontrado</h3>
-                    <p class="mt-1 text-gray-500">El producto que buscas no existe o ha sido eliminado.</p>
+                    <p class="mt-1 text-gray-500">${message}</p>
                     <div class="mt-6">
                         <a href="index.html" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                             Volver a la Tienda
