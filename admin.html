@@ -7,31 +7,61 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
   <style>
-    .preview-media {
-      max-height: 200px;
-      object-fit: contain;
-    }
     .tab-content {
       display: none;
     }
     .tab-content.active {
       display: block;
     }
-    .tab-button {
-      transition: all 0.3s ease;
-    }
     .tab-button.active {
       background-color: #3B82F6;
       color: white;
     }
-    .product-item {
+    .gallery-item {
       transition: all 0.3s ease;
+      position: relative;
     }
-    .product-item:hover {
-      transform: translateX(5px);
+    .gallery-item:hover {
+      transform: scale(1.05);
     }
-    .max-h-90vh {
-      max-height: 90vh;
+    .delete-media {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .delete-media {
+      opacity: 1;
+    }
+    .media-thumbnail {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .video-thumbnail {
+      position: relative;
+    }
+    .video-thumbnail::after {
+      content: '▶';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
   </style>
 </head>
@@ -92,25 +122,31 @@
           </div>
         </div>
 
-        <!-- Botones para subir medios -->
-        <div class="grid grid-cols-2 gap-4">
-          <button type="button" id="upload_image"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-            📸 Subir Imagen
-          </button>
-          <button type="button" id="upload_video"
-            class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
-            🎥 Subir Video
-          </button>
-        </div>
-
-        <!-- Vista previa de medios -->
-        <div id="preview" class="hidden mt-4">
-          <h3 class="font-medium text-gray-700 mb-2">Vista Previa:</h3>
-          <div id="preview-media" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-            <!-- Aquí se mostrará la imagen o video -->
+        <!-- Galería de Medios -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">
+            Galería de Medios *
+          </label>
+          <p class="text-sm text-gray-600 mb-3">Puedes agregar múltiples imágenes y videos</p>
+          
+          <!-- Botones para subir medios -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <button type="button" id="upload_image"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+              📸 Agregar Imágenes
+            </button>
+            <button type="button" id="upload_video"
+              class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+              🎥 Agregar Videos
+            </button>
           </div>
-          <p class="mt-2 text-gray-600 text-sm break-all text-center" id="preview-url"></p>
+
+          <!-- Vista previa de la galería -->
+          <div id="gallery-preview" class="border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-32">
+            <div id="gallery-items" class="flex flex-wrap gap-3">
+              <p class="text-gray-500 text-sm">No hay medios agregados. Sube algunas imágenes o videos.</p>
+            </div>
+          </div>
         </div>
 
         <!-- Guardar producto -->
@@ -148,6 +184,7 @@
         <input type="hidden" id="edit-index">
         
         <div class="space-y-4">
+          <!-- Campos de edición (nombre, descripción, precio, cantidad) -->
           <div>
             <label class="block text-gray-700 text-sm font-bold mb-2">Nombre del Producto *</label>
             <input type="text" id="edit-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
@@ -169,10 +206,19 @@
             </div>
           </div>
           
+          <!-- Galería en edición -->
           <div class="border-t pt-4">
-            <h3 class="font-semibold mb-3">Multimedia</h3>
-            <div id="edit-media-preview" class="text-center">
-              <!-- Aquí se mostrará la vista previa -->
+            <h3 class="font-semibold mb-3">Galería de Medios</h3>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <button type="button" onclick="openImageUpload(true)" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+                📸 Agregar Más
+              </button>
+              <button type="button" onclick="openVideoUpload(true)" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
+                🎥 Agregar Video
+              </button>
+            </div>
+            <div id="edit-gallery-preview" class="flex flex-wrap gap-2">
+              <!-- Galería se cargará aquí -->
             </div>
           </div>
         </div>
