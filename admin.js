@@ -1,42 +1,55 @@
 // Variables globales
 let myImageWidget, myVideoWidget;
 let currentMediaUrl = '';
-let currentMediaType = ''; // 'image' o 'video'
+let currentMediaType = '';
 
 // Configurar widgets de Cloudinary
 function initCloudinary() {
-    // Widget para imágenes
-    myImageWidget = cloudinary.createUploadWidget({
-        cloudName: 'dgio6hkz8',
-        uploadPreset: 'Tienda',
-        sources: ['local', 'camera'],
-        multiple: false,
-        clientAllowedFormats: ['image'],
-        maxFileSize: 5000000
-    }, handleUploadResult);
+    console.log("🔄 Inicializando Cloudinary...");
+    
+    try {
+        // Widget para imágenes
+        myImageWidget = cloudinary.createUploadWidget({
+            cloudName: 'dgio6hkz8',
+            uploadPreset: 'Tienda',
+            sources: ['local', 'camera'],
+            multiple: false,
+            clientAllowedFormats: ['image'],
+            maxFileSize: 5000000
+        }, handleUploadResult);
 
-    // Widget para videos
-    myVideoWidget = cloudinary.createUploadWidget({
-        cloudName: 'dgio6hkz8',
-        uploadPreset: 'Tienda',
-        sources: ['local'],
-        multiple: false,
-        clientAllowedFormats: ['video'],
-        maxFileSize: 20000000,
-        resourceType: 'video'
-    }, handleUploadResult);
+        // Widget para videos
+        myVideoWidget = cloudinary.createUploadWidget({
+            cloudName: 'dgio6hkz8',
+            uploadPreset: 'Tienda',
+            sources: ['local'],
+            multiple: false,
+            clientAllowedFormats: ['video'],
+            maxFileSize: 20000000,
+            resourceType: 'video'
+        }, handleUploadResult);
+
+        console.log("✅ Cloudinary inicializado correctamente");
+        return true;
+    } catch (error) {
+        console.error("❌ Error al inicializar Cloudinary:", error);
+        alert("Error al cargar Cloudinary. Recarga la página.");
+        return false;
+    }
 }
 
 // Manejar resultado de subida
 function handleUploadResult(error, result) {
+    console.log("📨 Resultado de subida:", result);
+    
     if (error) {
-        console.error("Error:", error);
+        console.error("❌ Error:", error);
         alert("Error al subir: " + error.message);
         return;
     }
     
     if (result && result.event === "success") {
-        console.log("Medio subido:", result.info);
+        console.log("✅ Medio subido:", result.info);
         currentMediaUrl = result.info.secure_url;
         currentMediaType = result.info.resource_type;
         showPreview(result.info);
@@ -55,12 +68,12 @@ function showPreview(fileInfo) {
     if (fileInfo.resource_type === 'image') {
         previewContainer.innerHTML = `
             <img src="${fileInfo.secure_url}" alt="Vista previa" 
-                 class="preview-media w-48 h-48 object-contain mx-auto rounded-lg">
+                 class="w-48 h-48 object-contain mx-auto rounded-lg">
             <p class="text-sm text-gray-500 mt-2">Imagen</p>
         `;
     } else if (fileInfo.resource_type === 'video') {
         previewContainer.innerHTML = `
-            <video controls class="preview-media w-full max-h-48 rounded-lg mx-auto">
+            <video controls class="w-full max-h-48 rounded-lg mx-auto">
                 <source src="${fileInfo.secure_url}" type="video/mp4">
                 Tu navegador no soporta videos.
             </video>
@@ -72,6 +85,7 @@ function showPreview(fileInfo) {
 // Guardar producto
 function saveProduct(event) {
     event.preventDefault();
+    console.log("💾 Intentando guardar producto...");
     
     if (!currentMediaUrl) {
         alert("⚠️ Primero sube una imagen o video");
@@ -88,6 +102,8 @@ function saveProduct(event) {
         createdAt: new Date().toISOString()
     };
 
+    console.log("📦 Producto a guardar:", product);
+
     // Validaciones
     if (!product.name || !product.description || product.price <= 0 || product.quantity <= 0) {
         alert("⚠️ Completa todos los campos correctamente");
@@ -99,6 +115,7 @@ function saveProduct(event) {
     products.push(product);
     localStorage.setItem("products", JSON.stringify(products));
 
+    console.log("✅ Productos en localStorage:", products);
     alert("✅ Producto guardado con éxito!");
     
     // Limpiar formulario
@@ -119,6 +136,8 @@ function updateProductsList() {
     const products = JSON.parse(localStorage.getItem("products")) || [];
     const container = document.getElementById('products-container');
     const listSection = document.getElementById('products-list');
+    
+    console.log("📋 Actualizando lista de productos:", products.length);
     
     if (products.length === 0) {
         listSection.classList.add('hidden');
@@ -159,21 +178,24 @@ function deleteProduct(index) {
 
 // Cuando el documento esté listo
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("Panel Admin mejorado cargado");
+    console.log("🚀 Panel Admin mejorado cargado");
     
     // Inicializar Cloudinary
     if (typeof cloudinary !== 'undefined') {
         initCloudinary();
     } else {
-        console.error("Cloudinary no está cargado");
+        console.error("❌ Cloudinary no está cargado");
+        alert("Error: Cloudinary no se cargó correctamente. Recarga la página.");
     }
     
     // Event listeners
     document.getElementById('upload_image').addEventListener('click', () => {
+        console.log("📸 Abriendo widget de imágenes...");
         if (myImageWidget) myImageWidget.open();
     });
     
     document.getElementById('upload_video').addEventListener('click', () => {
+        console.log("🎥 Abriendo widget de videos...");
         if (myVideoWidget) myVideoWidget.open();
     });
     
@@ -181,4 +203,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Cargar lista de productos
     updateProductsList();
+    
+    console.log("✅ Event listeners configurados correctamente");
 });
+
+// Función global para eliminar productos
+window.deleteProduct = deleteProduct;

@@ -4,14 +4,18 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let products = [];
     try {
-        products = JSON.parse(localStorage.getItem("products")) || [];
-        console.log("📦 Productos encontrados:", products.length);
+        const productsData = localStorage.getItem("products");
+        console.log("📦 Datos crudos de localStorage:", productsData);
+        
+        products = JSON.parse(productsData) || [];
+        console.log("✅ Productos parseados:", products);
     } catch (error) {
         console.error("❌ Error al cargar productos:", error);
         products = [];
     }
 
     const productList = document.getElementById("product-list");
+    console.log("🎯 Contenedor de productos:", productList);
 
     // Si no hay productos, mostrar mensaje
     if (products.length === 0) {
@@ -38,12 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     productList.innerHTML = ''; // Limpiar contenedor
     
     products.forEach((product, index) => {
-        console.log("Producto", index, product);
+        console.log("📋 Producto", index, product);
         
         // Validar que el producto tenga todos los campos necesarios
         if (!product.media || !product.name) {
-            console.warn("Producto incompleto:", product);
-            return; // Saltar productos incompletos
+            console.warn("⚠️ Producto incompleto:", product);
+            return;
         }
 
         let div = document.createElement("div");
@@ -51,10 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Determinar si es imagen o video
         const mediaContent = product.mediaType === 'video' ? 
-            `<video class="media-preview" controls>
+            `<video class="w-full h-48 object-cover" controls>
                 <source src="${product.media}" type="video/mp4">
              </video>` :
-            `<img src="${product.media}" alt="${product.name}" class="media-preview">`;
+            `<img src="${product.media}" alt="${product.name}" class="w-full h-48 object-cover">`;
         
         div.innerHTML = `
             ${mediaContent}
@@ -79,5 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         productList.appendChild(div);
     });
+    
+    console.log("✅ Productos renderizados correctamente");
 });
 
+// Función para forzar recarga si es necesario
+function checkAndReloadProducts() {
+    const products = JSON.parse(localStorage.getItem("products")) || [];
+    if (products.length > 0 && document.getElementById("product-list").innerHTML.includes("No hay productos")) {
+        console.log("🔄 Recargando para mostrar productos...");
+        window.location.reload();
+    }
+}
+
+// Verificar cada segundo durante 5 segundos
+setTimeout(checkAndReloadProducts, 1000);
+setTimeout(checkAndReloadProducts, 3000);
+setTimeout(checkAndReloadProducts, 5000);
